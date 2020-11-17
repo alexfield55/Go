@@ -1,66 +1,43 @@
+//https://medium.com/@BugDiver/lets-write-a-shell-from-scratch-using-golang-part-i-e528ff6ee6f8
+// source ^^
 package main
 
 import (
-	bufio
-	errors
-	fmt
-	os
-	osexec
-	strings
+	"bufio"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
 func main() {
-	reader = bufio.NewReader(os.Stdin)
+	fmt.Print("gosh> ")
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print( )
-		 Read the keyboad input.
-		input, err = reader.ReadString('n')
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-
-		 Remove the newline character.
-		input = strings.TrimSuffix(input, n)
-
-		 Skip an empty input.
-		if input ==  {
+		if !scanner.Scan() {
 			continue
 		}
-
-		 Handle the execution of the input.
-		if err = execInput(input); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		command := scanner.Text()
+		if strings.TrimSpace(command) == "" {
+			continue
 		}
-	}
-}
-
- ErrNoPath is returned when 'cd' was called without a second argument.
-var ErrNoPath = errors.New(path required)
-
-func execInput(input string) error {
-	 Split the input separate the command and the arguments.
-	args = strings.Split(input,  )
-
-	 Check for built-in commands.
-	switch args[0] {
-	case cd
-		 'cd' to home with empty path not yet supported.
-		if len(args)  2 {
-			return ErrNoPath
+		switch command {
+		case "pwd":
+			wd, _ := os.Getwd()
+			fmt.Println(wd)
+		case "ls":
+			wd, _ := os.Getwd()
+			fileInfos, _ := ioutil.ReadDir(wd)
+			for _, f := range fileInfos {
+				fmt.Println(f.Name())
+			}
+		case "cd":
+			fmt.Println("Action to change dir.")
+		case "exit":
+			os.Exit(0)
+		default:
+			fmt.Printf("The command {%s} is not available yet.\n", command)
 		}
-		 Change the directory and return the error.
-		return os.Chdir(args[1])
-	case exit
-		os.Exit(0)
+		fmt.Print("gosh> ")
 	}
-
-	 Prepare the command to execute.
-	cmd = exec.Command(args[0], args[1]...)
-
-	 Set the correct output device.
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-
-	 Execute the command return the error.
-	return cmd.Run()
 }
